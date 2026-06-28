@@ -6,7 +6,7 @@
 - License status checked: 2026-06-28
 - GitHub reported license: MIT
 
-本项目在配置切换兼容性、配置导入等方向参考了 CCSwitch 的公开实现与产品思路。
+本项目在配置切换兼容性、配置导入/导出等方向参考了 CCSwitch 的公开实现与产品思路。CC Switch 数据库导出写入方式对照其公开源码中的 `save_provider` 逻辑。
 
 为避免后续来源不清，这里保留其 MIT 许可文本：
 

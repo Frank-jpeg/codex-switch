@@ -1,6 +1,6 @@
 # CODEX切换器
 
-一个给本地 Codex 配置做可视化切换和会话诊断/修复的小工具。
+一个给本地 Codex 配置做可视化切换、会话诊断/修复、CC Switch 配置互导的小工具。
 
 ## 立即下载
 
@@ -19,7 +19,14 @@
 - 组合档案切换：纯官方 / 官方+中转 / 纯中转
 - 官方账号快照保存与恢复
 - 会话桶位诊断、异常摘要、可视化修复
-- 导入部分 CC Switch 线路配置
+- 从 CC Switch 导入 Codex 线路
+- 将本工具里的纯中转档案导出到 CC Switch
+- 记住主窗口上次关闭时的位置和大小
+
+更多实现和运维细节见：
+
+- [架构说明](./docs/ARCHITECTURE.md)
+- [运维与发布](./docs/OPERATIONS.md)
 
 ## 本地运行
 
@@ -37,11 +44,10 @@ python3 CODEX切换器.py
 macOS：
 
 ```bash
-python3 -m pip install pyinstaller
-python3 -m PyInstaller CODEX切换器.spec
+/Users/mini/Desktop/codex项目/koutu_chatu_mac_app/mamba_env/bin/pyinstaller --noconfirm --clean CODEX切换器.spec
 ```
 
-产物默认在 `dist/` 下，和 Windows 里常见的 `dist` 输出目录是一个意思。
+本机 macOS 打包建议使用上面的 mamba/conda Python 环境，避免系统 Tk 打包后出现白屏。产物默认在 `dist/` 下，和 Windows 里常见的 `dist` 输出目录是一个意思。
 
 ## 下载方式
 
@@ -59,8 +65,16 @@ python3 -m PyInstaller CODEX切换器.spec
 - 推送到 `main` 会自动构建 `Windows` 和 `macOS` 包
 - 也可以在 GitHub 的 `Actions` 页面手动点 `Build Desktop Packages`
 - 打 `v*` 标签时会自动创建 `Release` 并附带下载包
+- GitHub macOS 构建使用 conda-forge Python/Tk，避免系统 Tk 白屏问题
 
 这相当于把“本机打包 EXE / APP”改成“GitHub 云端帮你打包”，你在 Mac 上也能产出 Windows 版本。
+
+## CC Switch 互导说明
+
+- `导入 CC`：只读取 `~/.cc-switch/cc-switch.db`，把可识别的 Codex API 线路导入为“纯中转”档案。
+- `导出到 CC`：只导出本工具里的“纯中转”档案；官方登录和官方+中转不会导出，避免搬运登录态。
+- 导出前会自动备份 CC Switch 数据库到 `~/.cc-switch/backups/codex-switcher-export/`。
+- 如果导出后 CC Switch 没有立刻显示，重启 CC Switch 即可。
 
 ## macOS 提示
 
