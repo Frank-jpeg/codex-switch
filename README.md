@@ -2,6 +2,18 @@
 
 一个给本地 Codex 配置做可视化切换和会话诊断/修复的小工具。
 
+## 立即下载
+
+[![下载 Windows 版](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge)](https://github.com/Frank-jpeg/codex-switch/releases/latest/download/codex-switch-windows.zip)
+[![下载 macOS 版](https://img.shields.io/badge/Download-macOS-black?style=for-the-badge)](https://github.com/Frank-jpeg/codex-switch/releases/latest/download/codex-switch-macos.zip)
+[![查看全部版本](https://img.shields.io/badge/Releases-View%20All-success?style=for-the-badge)](https://github.com/Frank-jpeg/codex-switch/releases)
+
+- Windows 直接下载：[`codex-switch-windows.zip`](https://github.com/Frank-jpeg/codex-switch/releases/latest/download/codex-switch-windows.zip)
+- macOS 直接下载：[`codex-switch-macos.zip`](https://github.com/Frank-jpeg/codex-switch/releases/latest/download/codex-switch-macos.zip)
+- 全部版本列表：[`Releases`](https://github.com/Frank-jpeg/codex-switch/releases)
+
+如果下载链接一时打不开，通常是最新 `Release` 还在生成，等几十秒刷新就行。
+
 ## 现在能做什么
 
 - 组合档案切换：纯官方 / 官方+中转 / 纯中转
