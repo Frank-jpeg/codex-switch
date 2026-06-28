@@ -31,10 +31,18 @@ class App:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("CODEX 切换器 v2")
-        rt.fit_window_to_screen(self.root, 1120, 700, 940, 600, width_ratio=0.58, height_ratio=0.64)
-        self.root.configure(bg=rt.DARK_BG)
-
         self.app_data = rt.load_app_data()
+        rt.fit_window_to_screen(
+            self.root,
+            1120,
+            700,
+            940,
+            600,
+            width_ratio=0.58,
+            height_ratio=0.64,
+            saved_geometry=self.app_data.get("settings", {}).get("main_window_geometry", ""),
+        )
+        self.root.configure(bg=rt.DARK_BG)
         self.combo_profiles: dict[str, dict] = {}
         self.official_snapshots: dict[str, dict] = {}
         self.settings: dict = {}
@@ -91,11 +99,16 @@ class App:
         self.setup_styles()
         self.build_ui()
         self.register_macos_reopen_handler()
+        self.root.protocol("WM_DELETE_WINDOW", self.close_main_window)
         self.refresh(select_active=True)
 
     def register_macos_reopen_handler(self) -> None:
         try:
             self.root.createcommand("::tk::mac::ReopenApplication", self.show_main_window)
+        except tk.TclError:
+            pass
+        try:
+            self.root.createcommand("::tk::mac::Quit", self.close_main_window)
         except tk.TclError:
             pass
 
@@ -106,6 +119,20 @@ class App:
             self.root.focus_force()
         except tk.TclError:
             pass
+
+    def save_main_window_geometry(self) -> None:
+        try:
+            self.root.update_idletasks()
+            geometry = self.root.geometry()
+        except tk.TclError:
+            return
+        self.app_data.setdefault("settings", rt.default_settings())
+        self.app_data["settings"]["main_window_geometry"] = geometry
+        self.persist_app_data()
+
+    def close_main_window(self) -> None:
+        self.save_main_window_geometry()
+        self.root.destroy()
 
     def setup_styles(self) -> None:
         style = ttk.Style()

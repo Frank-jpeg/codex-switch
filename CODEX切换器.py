@@ -32,6 +32,7 @@ OLD_DB_PATH = CODEX_DIR / "state_5.sqlite"
 REPAIR_BACKUP_ROOT = CODEX_DIR / "backups" / "codex-session-repair"
 REPAIR_REPORT_ROOT = CODEX_DIR / "reports" / "codex-session-repair"
 SESSION_ID_RE = re.compile(r"([0-9a-f]{8}-[0-9a-f-]{27,})$", re.IGNORECASE)
+WINDOW_GEOMETRY_RE = re.compile(r"^(\d+)x(\d+)([+-]\d+)([+-]\d+)$")
 REPAIR_TARGET_SOURCE_LABELS = {
     "config": "配置",
     "rollout": "会话",
@@ -139,12 +140,26 @@ def fit_window_to_screen(
     min_height: int,
     width_ratio: float = 0.88,
     height_ratio: float = 0.84,
+    saved_geometry: str = "",
 ) -> None:
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-    width = min(max(preferred_width, int(screen_width * width_ratio)), max(760, screen_width - 60))
-    height = min(max(preferred_height, int(screen_height * height_ratio)), max(560, screen_height - 80))
-    window.geometry(f"{width}x{height}")
+    max_width = max(760, screen_width - 60)
+    max_height = max(560, screen_height - 80)
+    width = min(max(preferred_width, int(screen_width * width_ratio)), max_width)
+    height = min(max(preferred_height, int(screen_height * height_ratio)), max_height)
+    x = max(30, (screen_width - width) // 2)
+    y = max(40, (screen_height - height) // 3)
+
+    match = WINDOW_GEOMETRY_RE.fullmatch(str(saved_geometry or "").strip())
+    if match:
+        saved_width, saved_height, saved_x, saved_y = (int(part) for part in match.groups())
+        width = min(max(saved_width, min(min_width, max_width)), max_width)
+        height = min(max(saved_height, min(min_height, max_height)), max_height)
+        x = min(max(20, saved_x), max(20, screen_width - width - 20))
+        y = min(max(40, saved_y), max(40, screen_height - height - 40))
+
+    window.geometry(f"{width}x{height}+{x}+{y}")
     window.minsize(min(min_width, width), min(min_height, height))
 
 
@@ -789,6 +804,7 @@ def make_snapshot_id(display_name: str, existing_ids: set[str], current_id: str 
 def default_settings() -> dict:
     return {
         "require_successful_verification_before_switch": False,
+        "main_window_geometry": "",
     }
 
 
@@ -827,11 +843,15 @@ def normalize_bool(value: object, default: bool = False) -> bool:
 def sanitize_settings(raw: object) -> dict:
     data = raw if isinstance(raw, dict) else {}
     defaults = default_settings()
+    main_window_geometry = str(data.get("main_window_geometry") or "").strip()
+    if not WINDOW_GEOMETRY_RE.fullmatch(main_window_geometry):
+        main_window_geometry = defaults["main_window_geometry"]
     return {
         "require_successful_verification_before_switch": normalize_bool(
             data.get("require_successful_verification_before_switch"),
             defaults["require_successful_verification_before_switch"],
         ),
+        "main_window_geometry": main_window_geometry,
     }
 
 
