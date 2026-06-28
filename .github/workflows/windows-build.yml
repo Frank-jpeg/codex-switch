@@ -1,0 +1,50 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify Tkinter
+        shell: pwsh
+        run: |
+          python -c "import tkinter; print(tkinter.TkVersion)"
+
+      - name: Install PyInstaller
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Build EXE
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean 'CODEX切换器.spec'
+
+      - name: Pack artifact
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'dist/CODEX切换器/CODEX切换器.exe')) {
+            throw '未找到 Windows EXE 输出'
+          }
+          Compress-Archive -Path 'dist/CODEX切换器/*' -DestinationPath 'dist/codex-switch-windows.zip' -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-switch-windows
+          path: dist/codex-switch-windows.zip

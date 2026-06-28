@@ -1,0 +1,6 @@
+{
+  "project_name": "CODEX切换器",
+  "source_path": ".",
+  "main_file": "CODEX切换器.py",
+  "build_command": "python -m PyInstaller CODEX切换器.spec"
+}
