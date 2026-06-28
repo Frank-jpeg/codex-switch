@@ -31,15 +31,33 @@ python3 -m PyInstaller CODEX切换器.spec
 
 产物默认在 `dist/` 下，和 Windows 里常见的 `dist` 输出目录是一个意思。
 
-## Windows EXE
+## 下载方式
+
+最方便的下载入口是仓库右侧或上方的 `Releases`：
+
+- `Windows`：下载 `codex-switch-windows.zip`
+- `macOS`：下载 `codex-switch-macos.zip`
+
+如果只是临时测试，也可以去 `Actions` 下载构建产物。
+
+## 自动打包
 
 仓库内已提供 GitHub Actions 工作流：
 
-- 推送到 `main` 会自动构建一次
-- 也可以在 GitHub 的 `Actions` 页面手动点 `Build Windows EXE`
-- 构建完成后，到 `Artifacts` 下载 `codex-switch-windows.zip`
+- 推送到 `main` 会自动构建 `Windows` 和 `macOS` 包
+- 也可以在 GitHub 的 `Actions` 页面手动点 `Build Desktop Packages`
+- 打 `v*` 标签时会自动创建 `Release` 并附带下载包
 
-这相当于把“本机打包 EXE”改成“GitHub 云端帮你打包 EXE”，你在 Mac 上也能出 Windows 版本。
+这相当于把“本机打包 EXE / APP”改成“GitHub 云端帮你打包”，你在 Mac 上也能产出 Windows 版本。
+
+## macOS 提示
+
+GitHub 产出的 `.app` 默认没有 Apple 签名。
+
+这和 Windows 里“第一次运行未知发布者 EXE 会弹提醒”很像：
+
+- Mac 可能提示应用来自未验证开发者
+- 需要在“系统设置 -> 隐私与安全性”里允许一次
 
 ## 参考与致谢
 
