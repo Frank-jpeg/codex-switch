@@ -50,7 +50,7 @@ class App:
         self.current_line_var = tk.StringVar(value="-")
         self.current_base_url_var = tk.StringVar(value="-")
         self.current_auth_kind_var = tk.StringVar(value="-")
-        self.session_health_var = tk.StringVar(value="会话元数据正常")
+        self.session_health_var = tk.StringVar(value="会话状态未自动扫描；需要时点“会话修复”查看")
         self.status_var = tk.StringVar(value="系统就绪")
         self.search_query_var = tk.StringVar()
         self.search_tip_var = tk.StringVar(value="输入关键词后按回车，直接搜索聊天记录")
@@ -130,7 +130,7 @@ class App:
         )
         style.map(
             "TButton",
-            background=[("pressed", rt.DARK_BORDER), ("active", "#273449"), ("disabled", rt.DARK_PANEL)],
+            background=[("pressed", rt.DARK_BORDER), ("active", rt.DARK_BUTTON_HOVER), ("disabled", rt.DARK_PANEL)],
             foreground=[("disabled", rt.DARK_DISABLED)],
         )
         style.configure(
@@ -157,7 +157,7 @@ class App:
             bordercolor=rt.DARK_BORDER,
             focuscolor="",
         )
-        style.map("Icon.TButton", background=[("pressed", rt.DARK_BORDER), ("active", "#273449")])
+        style.map("Icon.TButton", background=[("pressed", rt.DARK_BORDER), ("active", rt.DARK_BUTTON_HOVER)])
 
         style.configure(
             "TEntry",
@@ -204,17 +204,18 @@ class App:
         style.map("TNotebook.Tab", background=[("selected", rt.DARK_PANEL)], foreground=[("selected", rt.DARK_ACCENT), ("active", rt.DARK_TEXT)])
 
     def build_ui(self) -> None:
-        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
-        main_paned.pack(fill="both", expand=True, padx=12, pady=12)
+        main_wrap = tk.Frame(self.root, bg=rt.DARK_BG)
+        main_wrap.pack(fill="both", expand=True, padx=12, pady=12)
 
-        left_frame = tk.Frame(main_paned, bg=rt.DARK_PANEL, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
-        main_paned.add(left_frame, weight=1)
+        left_frame = tk.Frame(main_wrap, bg=rt.SIDEBAR_BG, highlightbackground=rt.DARK_BORDER, highlightthickness=1, width=430)
+        left_frame.pack(side="left", fill="both", padx=(0, 12))
+        left_frame.pack_propagate(False)
 
-        left_head = tk.Frame(left_frame, bg=rt.DARK_PANEL)
+        left_head = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         left_head.pack(fill="x", padx=15, pady=(15, 10))
-        tk.Label(left_head, text="组合档案", font=("Microsoft YaHei UI", 19, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_TEXT).pack(side="left")
+        tk.Label(left_head, text="组合档案", font=("Microsoft YaHei UI", 19, "bold"), bg=rt.SIDEBAR_BG, fg=rt.SIDEBAR_TEXT).pack(side="left")
 
-        left_actions = tk.Frame(left_frame, bg=rt.DARK_PANEL)
+        left_actions = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         left_actions.pack(fill="x", padx=15, pady=(0, 10))
         self.prepare_official_btn = ttk.Button(left_actions, text="准备接入官方账号", command=self.prepare_official_login)
         self.prepare_official_btn.pack(side="left", fill="x", expand=True)
@@ -222,19 +223,19 @@ class App:
         self.restore_official_btn = ttk.Button(left_actions, text="恢复接入前状态", command=self.restore_official_login_prep)
         self.restore_official_btn.pack(side="left", fill="x", expand=True, padx=(10, 0))
 
-        left_actions_row2 = tk.Frame(left_frame, bg=rt.DARK_PANEL)
+        left_actions_row2 = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         left_actions_row2.pack(fill="x", padx=15, pady=(0, 10))
         ttk.Button(left_actions_row2, text="导入 CC", command=self.import_cc_switch_profiles).pack(side="left", fill="x", expand=True)
 
-        list_frame = tk.Frame(left_frame, bg=rt.DARK_PANEL)
+        list_frame = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         list_frame.pack(fill="both", expand=True, padx=15, pady=(0, 15))
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical")
         scrollbar.pack(side="right", fill="y")
         self.listbox = tk.Listbox(
             list_frame,
             font=("Microsoft YaHei UI", 18),
-            bg=rt.DARK_FIELD,
-            fg=rt.DARK_TEXT,
+            bg=rt.SIDEBAR_FIELD,
+            fg=rt.SIDEBAR_TEXT,
             selectbackground=rt.DARK_SELECT_BG,
             selectforeground=rt.DARK_SELECT_FG,
             relief="flat",
@@ -250,22 +251,21 @@ class App:
         self.listbox.bind("<Double-Button-1>", lambda _event: self.switch_selected())
         self.listbox.bind("<Delete>", lambda _event: self.delete_selected_profile())
 
-        left_bottom = tk.Frame(left_frame, bg=rt.DARK_PANEL)
+        left_bottom = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         left_bottom.pack(fill="x", padx=15, pady=(0, 15))
         ttk.Button(left_bottom, text="切换选中", command=self.switch_selected, style="Primary.TButton").pack(side="left", expand=True, fill="x", padx=(0, 5))
         ttk.Button(left_bottom, text="新建", command=self.clear_form).pack(side="left", expand=True, fill="x", padx=(5, 5))
         ttk.Button(left_bottom, text="删除", command=self.delete_selected_profile).pack(side="left", expand=True, fill="x", padx=(5, 0))
-        self.root.after_idle(lambda: main_paned.sashpos(0, 430))
 
-        right_frame = tk.Frame(main_paned, bg=rt.DARK_BG)
-        main_paned.add(right_frame, weight=3)
+        right_frame = tk.Frame(main_wrap, bg=rt.DARK_BG)
+        right_frame.pack(side="left", fill="both", expand=True)
 
         status_card = tk.Frame(right_frame, bg=rt.DARK_PANEL, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
         status_card.pack(fill="x", pady=(0, 10))
 
         status_head = tk.Frame(status_card, bg=rt.DARK_PANEL)
         status_head.pack(fill="x", padx=20, pady=(15, 8))
-        tk.Label(status_head, text="当前生效状态", font=("Microsoft YaHei UI", 17, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_SUCCESS).pack(side="left")
+        tk.Label(status_head, text="当前生效状态", font=("Microsoft YaHei UI", 17, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_ACCENT).pack(side="left")
         ttk.Button(status_head, text="刷新状态", command=lambda: self.refresh(select_active=False)).pack(side="right")
         ttk.Button(status_head, text="会话修复", command=self.open_repair_window).pack(side="right", padx=(0, 10))
         ttk.Button(status_head, text="高级搜索", command=self.open_search_window).pack(side="right", padx=(0, 10))
@@ -510,8 +510,7 @@ class App:
             self.current_base_url_var.set(self.live_state["base_url_label"])
             self.current_auth_kind_var.set(self.live_state["auth_kind_label"])
 
-        _has_issue, health_text = rt.analyze_session_health()
-        self.session_health_var.set(health_text)
+        self.session_health_var.set("会话状态未自动扫描；需要时点“会话修复”查看")
         self.refresh_snapshot_choices()
         if self.prepare_official_btn is not None:
             self.prepare_official_btn.configure(state="disabled" if onboarding_active else "normal")

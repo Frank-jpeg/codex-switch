@@ -27,21 +27,54 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: matrix.platform_name == 'windows'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      - name: Setup conda Python for macOS
+        if: matrix.platform_name == 'macos'
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: codex-switch-build
+          python-version: "3.12"
+          channels: conda-forge
+          channel-priority: strict
+
       - name: Verify Tkinter
+        if: matrix.platform_name == 'windows'
         shell: pwsh
         run: |
           python -c "import tkinter; print(tkinter.TkVersion)"
 
+      - name: Verify Tkinter on macOS
+        if: matrix.platform_name == 'macos'
+        shell: bash -el {0}
+        run: |
+          python -c "import tkinter; print(tkinter.TkVersion)"
+
       - name: Install PyInstaller
+        if: matrix.platform_name == 'windows'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Install PyInstaller on macOS
+        if: matrix.platform_name == 'macos'
+        shell: bash -el {0}
         run: |
           python -m pip install --upgrade pip
           python -m pip install pyinstaller
 
       - name: Build Desktop Package
+        if: matrix.platform_name == 'windows'
+        run: |
+          pyinstaller --noconfirm --clean 'CODEX切换器.spec'
+
+      - name: Build Desktop Package on macOS
+        if: matrix.platform_name == 'macos'
+        shell: bash -el {0}
         run: |
           pyinstaller --noconfirm --clean 'CODEX切换器.spec'
 

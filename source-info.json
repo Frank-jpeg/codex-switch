@@ -1,6 +1,6 @@
 {
   "project_name": "CODEX切换器",
-  "source_path": ".",
-  "main_file": "CODEX切换器.py",
-  "build_command": "python -m PyInstaller CODEX切换器.spec"
+  "source_path": "/Users/mini/Desktop/codex项目/CODEX切换器集成构建",
+  "main_file": "/Users/mini/Desktop/codex项目/CODEX切换器集成构建/CODEX切换器.py",
+  "build_command": "/Users/mini/Desktop/codex项目/koutu_chatu_mac_app/mamba_env/bin/pyinstaller CODEX切换器.spec"
 }
