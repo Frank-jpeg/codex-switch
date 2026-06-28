@@ -252,7 +252,8 @@ class App:
 
         left_actions_row2 = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         left_actions_row2.pack(fill="x", padx=10, pady=(0, 6))
-        ttk.Button(left_actions_row2, text="导入 CC", command=self.import_cc_switch_profiles).pack(side="left", fill="x", expand=True)
+        ttk.Button(left_actions_row2, text="导入 CC", command=self.import_cc_switch_profiles).pack(side="left", fill="x", expand=True, padx=(0, 3))
+        ttk.Button(left_actions_row2, text="导出到 CC", command=self.export_profiles_to_cc_switch).pack(side="left", fill="x", expand=True, padx=(3, 0))
 
         list_frame = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
         list_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
@@ -1057,6 +1058,147 @@ class App:
         dialog.wait_window()
         return result["profiles"]
 
+    def choose_export_profiles_to_cc_switch(self, cc_profiles: list[dict], skipped_invalid: int) -> list[dict] | None:
+        existing_cc_pairs = {
+            (
+                rt.normalize_base_url_for_compare(profile.get("base_url", "")),
+                profile.get("api_key", "").strip(),
+            )
+            for profile in cc_profiles
+        }
+
+        candidates = []
+        for index, profile_id in enumerate(self.get_ordered_profile_ids()):
+            profile = self.combo_profiles[profile_id]
+            pair = (
+                rt.normalize_base_url_for_compare(profile.get("provider_base_url", "")),
+                profile.get("provider_api_key", "").strip(),
+            )
+            exportable = False
+            if profile.get("profile_type") != rt.PROFILE_MODE_PROXY_ONLY:
+                status = "不支持"
+            elif not pair[0] or not pair[1]:
+                status = "缺字段"
+            elif pair in existing_cc_pairs:
+                status = "已存在"
+            else:
+                status = "可导出"
+                exportable = True
+            candidates.append(
+                {
+                    "index": index,
+                    "profile": profile,
+                    "status": status,
+                    "exportable": exportable,
+                }
+            )
+
+        result: dict[str, list[dict] | None] = {"profiles": None}
+        dialog = tk.Toplevel(self.root)
+        dialog.title("导出到 CC Switch")
+        rt.fit_window_to_screen(dialog, 900, 520, 780, 420)
+        dialog.configure(bg=rt.DARK_BG)
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        outer = tk.Frame(dialog, bg=rt.DARK_BG)
+        outer.pack(fill="both", expand=True, padx=18, pady=18)
+        tk.Label(
+            outer,
+            text=f"把本切换器的“纯中转”档案导出到 CC Switch（CC 里无效跳过 {skipped_invalid} 条）",
+            bg=rt.DARK_BG,
+            fg=rt.DARK_TEXT,
+            font=("Microsoft YaHei UI", 14, "bold"),
+        ).pack(anchor="w", pady=(0, 10))
+
+        table_frame = tk.Frame(outer, bg=rt.DARK_PANEL, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
+        table_frame.pack(fill="both", expand=True)
+        y_scroll = ttk.Scrollbar(table_frame, orient="vertical")
+        y_scroll.pack(side="right", fill="y")
+        tree = ttk.Treeview(
+            table_frame,
+            columns=("status", "name", "base_url", "api_key"),
+            show="headings",
+            selectmode="extended",
+            yscrollcommand=y_scroll.set,
+        )
+        tree.heading("status", text="状态")
+        tree.heading("name", text="名称")
+        tree.heading("base_url", text="Base URL")
+        tree.heading("api_key", text="API Key")
+        tree.column("status", width=80, anchor="center", stretch=False)
+        tree.column("name", width=220, anchor="w")
+        tree.column("base_url", width=360, anchor="w")
+        tree.column("api_key", width=120, anchor="w", stretch=False)
+        tree.tag_configure("disabled", foreground=rt.DARK_DISABLED)
+        tree.pack(side="left", fill="both", expand=True)
+        y_scroll.config(command=tree.yview)
+
+        exportable_ids: list[str] = []
+        for candidate in candidates:
+            profile = candidate["profile"]
+            item_id = str(candidate["index"])
+            tree.insert(
+                "",
+                "end",
+                iid=item_id,
+                values=(
+                    candidate["status"],
+                    profile.get("display_name") or profile.get("provider_name") or item_id,
+                    profile.get("provider_base_url", ""),
+                    rt.mask_secret(profile.get("provider_api_key", "")),
+                ),
+                tags=() if candidate["exportable"] else ("disabled",),
+            )
+            if candidate["exportable"]:
+                exportable_ids.append(item_id)
+
+        if exportable_ids:
+            tree.selection_set(*exportable_ids)
+
+        summary_var = tk.StringVar()
+
+        def selected_exportable_profiles() -> list[dict]:
+            selected: list[dict] = []
+            for item_id in tree.selection():
+                candidate = candidates[int(item_id)]
+                if candidate["exportable"]:
+                    selected.append(candidate["profile"])
+            return selected
+
+        def update_summary(_event: object | None = None) -> None:
+            summary_var.set(f"已选 {len(selected_exportable_profiles())} 条 / 可导出 {len(exportable_ids)} 条")
+
+        def select_all_exportable() -> None:
+            tree.selection_set(*exportable_ids)
+            update_summary()
+
+        def cancel() -> None:
+            result["profiles"] = None
+            dialog.destroy()
+
+        def confirm() -> None:
+            selected = selected_exportable_profiles()
+            if not selected:
+                messagebox.showwarning("未选择", "请至少选择一条可导出档案。", parent=dialog)
+                return
+            result["profiles"] = selected
+            dialog.destroy()
+
+        tree.bind("<<TreeviewSelect>>", update_summary)
+
+        action_row = tk.Frame(outer, bg=rt.DARK_BG)
+        action_row.pack(fill="x", pady=(12, 0))
+        tk.Label(action_row, textvariable=summary_var, bg=rt.DARK_BG, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 12)).pack(side="left")
+        ttk.Button(action_row, text="全选可导出", command=select_all_exportable).pack(side="left", padx=(16, 0))
+        ttk.Button(action_row, text="取消", command=cancel).pack(side="right")
+        ttk.Button(action_row, text="导出选中", command=confirm, style="Primary.TButton").pack(side="right", padx=(0, 8))
+
+        dialog.protocol("WM_DELETE_WINDOW", cancel)
+        update_summary()
+        dialog.wait_window()
+        return result["profiles"]
+
     def import_cc_switch_profiles(self) -> None:
         try:
             cc_profiles, skipped_invalid = rt.load_cc_switch_codex_profiles()
@@ -1117,6 +1259,33 @@ class App:
         except Exception as exc:
             self.status_var.set(f"导入失败: {exc}")
             messagebox.showerror("导入失败", str(exc), parent=self.root)
+
+    def export_profiles_to_cc_switch(self) -> None:
+        try:
+            cc_profiles, skipped_invalid = rt.load_cc_switch_codex_profiles()
+            selected_profiles = self.choose_export_profiles_to_cc_switch(cc_profiles, skipped_invalid)
+            if selected_profiles is None:
+                self.status_var.set("已取消导出")
+                return
+
+            result = rt.export_profiles_to_cc_switch(selected_profiles)
+            exported = int(result.get("exported") or 0)
+            skipped_duplicate = int(result.get("skipped_duplicate") or 0)
+            backup_path = str(result.get("backup_path") or "")
+            if exported == 0:
+                self.status_var.set("没有导出到新内容")
+                messagebox.showinfo("无需导出", f"重复跳过：{skipped_duplicate} 条", parent=self.root)
+                return
+
+            self.status_var.set(f"已导出 {exported} 条到 CC Switch")
+            messagebox.showinfo(
+                "导出成功",
+                f"已导出：{exported} 条\n重复跳过：{skipped_duplicate} 条\n备份：{backup_path}\n\n如果 CC Switch 没有马上显示，请重启 CC Switch。",
+                parent=self.root,
+            )
+        except Exception as exc:
+            self.status_var.set(f"导出失败: {exc}")
+            messagebox.showerror("导出失败", str(exc), parent=self.root)
 
     def set_model_result_text(self, content: str) -> None:
         if not self.model_result_text:

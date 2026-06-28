@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import threading
 import tkinter as tk
+import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +28,7 @@ CONFIG_PATH = CODEX_DIR / "config.toml"
 AUTH_PATH = CODEX_DIR / "auth.json"
 PROFILES_PATH = CODEX_DIR / "provider_profiles.json"
 CC_SWITCH_DB_PATH = USER_PROFILE / ".cc-switch" / "cc-switch.db"
+CC_SWITCH_BACKUP_ROOT = USER_PROFILE / ".cc-switch" / "backups" / "codex-switcher-export"
 NEW_DB_PATH = CODEX_DIR / "sqlite" / "state_5.sqlite"
 OLD_DB_PATH = CODEX_DIR / "state_5.sqlite"
 REPAIR_BACKUP_ROOT = CODEX_DIR / "backups" / "codex-session-repair"
@@ -2095,6 +2097,118 @@ def load_cc_switch_codex_profiles() -> tuple[list[dict], int]:
         imported.append({"name": name, "base_url": base_url, "api_key": api_key})
 
     return imported, skipped
+
+
+def build_cc_switch_settings_config(profile: dict, base_config_text: str) -> str:
+    provider_name = str(profile.get("provider_name") or profile.get("display_name") or "Codex Switch").strip()
+    base_url = normalize_api_base_url(str(profile.get("provider_base_url") or ""))
+    api_key = str(profile.get("provider_api_key") or "").strip()
+    if not api_key:
+        raise ValueError(f"{profile.get('display_name') or provider_name} 缺少 API Key。")
+    config_text = build_proxy_only_config(base_config_text, provider_name, base_url)
+    return json.dumps(
+        {
+            "auth": {"OPENAI_API_KEY": api_key},
+            "config": config_text,
+        },
+        ensure_ascii=False,
+    )
+
+
+def backup_cc_switch_db() -> Path:
+    assert_file_exists(CC_SWITCH_DB_PATH)
+    CC_SWITCH_BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
+    backup_path = CC_SWITCH_BACKUP_ROOT / f"cc-switch-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}.db"
+    db_uri = f"file:{CC_SWITCH_DB_PATH.as_posix()}?mode=ro"
+    with sqlite3.connect(db_uri, uri=True) as source:
+        with sqlite3.connect(backup_path) as target:
+            source.backup(target)
+    return backup_path
+
+
+def load_cc_switch_common_codex_config() -> str:
+    assert_file_exists(CC_SWITCH_DB_PATH)
+    db_uri = f"file:{CC_SWITCH_DB_PATH.as_posix()}?mode=ro"
+    with sqlite3.connect(db_uri, uri=True) as connection:
+        row = connection.execute(
+            "SELECT value FROM settings WHERE key = ?",
+            ("common_config_codex",),
+        ).fetchone()
+    if row and isinstance(row[0], str) and row[0].strip():
+        return row[0]
+    return read_text(CONFIG_PATH)
+
+
+def export_profiles_to_cc_switch(profiles: list[dict]) -> dict:
+    assert_file_exists(CC_SWITCH_DB_PATH)
+    if not profiles:
+        return {"exported": 0, "skipped_duplicate": 0, "backup_path": ""}
+
+    base_config_text = load_cc_switch_common_codex_config()
+    existing_profiles, _skipped = load_cc_switch_codex_profiles()
+    existing_pairs = {profile_compare_key(profile) for profile in existing_profiles}
+    backup_path = backup_cc_switch_db()
+    now_ms = int(datetime.now().timestamp() * 1000)
+    meta = json.dumps(
+        {"commonConfigEnabled": True, "endpointAutoSelect": True, "apiFormat": "openai_responses"},
+        ensure_ascii=False,
+    )
+
+    exported = 0
+    skipped_duplicate = 0
+    with sqlite3.connect(CC_SWITCH_DB_PATH, timeout=10) as connection:
+        connection.execute("PRAGMA foreign_keys = ON")
+        next_sort = connection.execute(
+            "SELECT COALESCE(MAX(sort_index), 0) + 1 FROM providers WHERE app_type = ?",
+            ("codex",),
+        ).fetchone()[0]
+        for profile in profiles:
+            pair = (
+                normalize_base_url_for_compare(profile.get("provider_base_url", "")),
+                str(profile.get("provider_api_key") or "").strip(),
+            )
+            if pair in existing_pairs:
+                skipped_duplicate += 1
+                continue
+
+            provider_id = str(uuid.uuid4())
+            provider_name = str(profile.get("provider_name") or profile.get("display_name") or provider_id).strip()
+            base_url = normalize_api_base_url(str(profile.get("provider_base_url") or ""))
+            settings_config = build_cc_switch_settings_config(profile, base_config_text)
+            notes = str(profile.get("notes") or "").strip() or f"从 CODEX 切换器导出：{profile.get('display_name') or provider_name}"
+            connection.execute(
+                """
+                INSERT INTO providers (
+                    id, app_type, name, settings_config, website_url, category, created_at,
+                    sort_index, notes, icon, icon_color, meta, is_current, in_failover_queue
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    provider_id,
+                    "codex",
+                    provider_name,
+                    settings_config,
+                    base_url,
+                    None,
+                    now_ms + exported,
+                    next_sort + exported,
+                    notes,
+                    None,
+                    None,
+                    meta,
+                    0,
+                    0,
+                ),
+            )
+            connection.execute(
+                "INSERT INTO provider_endpoints (provider_id, app_type, url, added_at) VALUES (?, ?, ?, ?)",
+                (provider_id, "codex", base_url, now_ms + exported),
+            )
+            existing_pairs.add(pair)
+            exported += 1
+
+    return {"exported": exported, "skipped_duplicate": skipped_duplicate, "backup_path": str(backup_path)}
 
 
 def repair_now_stamp() -> str:
