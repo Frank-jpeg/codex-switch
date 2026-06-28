@@ -82,8 +82,8 @@ OFFICIAL_ONBOARDING_ACCOUNT = "pending"
 LIVE_BACKUP_ROOT = CODEX_DIR / "backups" / "codex-switcher-live"
 PROVIDER_MODE_RESPONSES_DIRECT = "responses_direct"
 KEYCHAIN_SECRET_HEX_PREFIX = "json-utf8-hex:"
-# 调整缩放比例，适应更大字体
-UI_SCALING = 1.5
+# 使用更紧凑的缩放，避免主窗口占满屏幕。
+UI_SCALING = 1.25
 UI_FONT_FAMILY = "Microsoft YaHei UI"
 SIDEBAR_BG = "#30231A"
 SIDEBAR_PANEL = "#3B2B20"
@@ -113,16 +113,16 @@ def configure_tk_display(root: tk.Tk) -> None:
         root.tk.call("tk", "scaling", UI_SCALING)
     except tk.TclError:
         pass
-    # 全局调大字体
+    # 全局字体
     default_fonts = {
-        "TkDefaultFont": 15,
-        "TkTextFont": 15,
-        "TkMenuFont": 15,
-        "TkHeadingFont": 17,
-        "TkCaptionFont": 15,
-        "TkSmallCaptionFont": 14,
-        "TkIconFont": 15,
-        "TkTooltipFont": 14,
+        "TkDefaultFont": 13,
+        "TkTextFont": 13,
+        "TkMenuFont": 13,
+        "TkHeadingFont": 14,
+        "TkCaptionFont": 13,
+        "TkSmallCaptionFont": 12,
+        "TkIconFont": 13,
+        "TkTooltipFont": 12,
     }
     for font_name, size in default_fonts.items():
         try:

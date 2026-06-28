@@ -31,7 +31,7 @@ class App:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("CODEX 切换器 v2")
-        rt.fit_window_to_screen(self.root, 1440, 900, 1200, 780, width_ratio=0.82, height_ratio=0.8)
+        rt.fit_window_to_screen(self.root, 1120, 700, 940, 600, width_ratio=0.58, height_ratio=0.64)
         self.root.configure(bg=rt.DARK_BG)
 
         self.app_data = rt.load_app_data()
@@ -119,8 +119,8 @@ class App:
 
         style.configure(
             "TButton",
-            font=("Microsoft YaHei UI", 14),
-            padding=(12, 6),
+            font=("Microsoft YaHei UI", 12),
+            padding=(9, 4),
             background=rt.DARK_PANEL_ALT,
             foreground=rt.DARK_TEXT,
             bordercolor=rt.DARK_BORDER,
@@ -135,7 +135,7 @@ class App:
         )
         style.configure(
             "Primary.TButton",
-            font=("Microsoft YaHei UI", 14, "bold"),
+            font=("Microsoft YaHei UI", 12, "bold"),
             background=rt.DARK_ACCENT,
             foreground=rt.DARK_SELECT_FG,
             bordercolor=rt.DARK_ACCENT,
@@ -150,8 +150,8 @@ class App:
         )
         style.configure(
             "Icon.TButton",
-            font=("Microsoft YaHei UI", 14),
-            padding=(8, 6),
+            font=("Microsoft YaHei UI", 12),
+            padding=(7, 4),
             background=rt.DARK_PANEL_ALT,
             foreground=rt.DARK_TEXT,
             bordercolor=rt.DARK_BORDER,
@@ -161,7 +161,7 @@ class App:
 
         style.configure(
             "TEntry",
-            font=("Microsoft YaHei UI", 14),
+            font=("Microsoft YaHei UI", 12),
             fieldbackground=rt.DARK_FIELD,
             foreground=rt.DARK_TEXT,
             insertcolor=rt.DARK_TEXT,
@@ -191,49 +191,49 @@ class App:
             selectbackground=[("readonly", rt.DARK_FIELD)],
             selectforeground=[("readonly", rt.DARK_TEXT)],
         )
-        style.configure("TCheckbutton", background=rt.DARK_PANEL, foreground=rt.DARK_TEXT, focuscolor="", font=("Microsoft YaHei UI", 14))
+        style.configure("TCheckbutton", background=rt.DARK_PANEL, foreground=rt.DARK_TEXT, focuscolor="", font=("Microsoft YaHei UI", 12))
         style.map("TCheckbutton", background=[("active", rt.DARK_PANEL)], foreground=[("disabled", rt.DARK_DISABLED)])
 
         style.configure("Vertical.TScrollbar", background=rt.DARK_PANEL_ALT, bordercolor=rt.DARK_BG, arrowcolor=rt.DARK_MUTED, troughcolor=rt.DARK_BG)
         style.configure("Horizontal.TScrollbar", background=rt.DARK_PANEL_ALT, bordercolor=rt.DARK_BG, arrowcolor=rt.DARK_MUTED, troughcolor=rt.DARK_BG)
-        style.configure("Treeview", background=rt.DARK_FIELD, fieldbackground=rt.DARK_FIELD, foreground=rt.DARK_TEXT, bordercolor=rt.DARK_BORDER, rowheight=34)
+        style.configure("Treeview", background=rt.DARK_FIELD, fieldbackground=rt.DARK_FIELD, foreground=rt.DARK_TEXT, bordercolor=rt.DARK_BORDER, rowheight=28)
         style.map("Treeview", background=[("selected", rt.DARK_SELECT_BG)], foreground=[("selected", rt.DARK_SELECT_FG)])
-        style.configure("Treeview.Heading", background=rt.DARK_PANEL_ALT, foreground=rt.DARK_TEXT, bordercolor=rt.DARK_BORDER, font=("Microsoft YaHei UI", 13, "bold"))
+        style.configure("Treeview.Heading", background=rt.DARK_PANEL_ALT, foreground=rt.DARK_TEXT, bordercolor=rt.DARK_BORDER, font=("Microsoft YaHei UI", 12, "bold"))
         style.configure("TNotebook", background=rt.DARK_BG, borderwidth=0)
-        style.configure("TNotebook.Tab", font=("Microsoft YaHei UI", 14), padding=(15, 8), background=rt.DARK_PANEL_ALT, foreground=rt.DARK_MUTED, bordercolor=rt.DARK_BORDER)
+        style.configure("TNotebook.Tab", font=("Microsoft YaHei UI", 12), padding=(10, 5), background=rt.DARK_PANEL_ALT, foreground=rt.DARK_MUTED, bordercolor=rt.DARK_BORDER)
         style.map("TNotebook.Tab", background=[("selected", rt.DARK_PANEL)], foreground=[("selected", rt.DARK_ACCENT), ("active", rt.DARK_TEXT)])
 
     def build_ui(self) -> None:
         main_wrap = tk.Frame(self.root, bg=rt.DARK_BG)
-        main_wrap.pack(fill="both", expand=True, padx=12, pady=12)
+        main_wrap.pack(fill="both", expand=True, padx=8, pady=8)
 
-        left_frame = tk.Frame(main_wrap, bg=rt.SIDEBAR_BG, highlightbackground=rt.DARK_BORDER, highlightthickness=1, width=430)
-        left_frame.pack(side="left", fill="both", padx=(0, 12))
+        left_frame = tk.Frame(main_wrap, bg=rt.SIDEBAR_BG, highlightbackground=rt.DARK_BORDER, highlightthickness=1, width=350)
+        left_frame.pack(side="left", fill="both", padx=(0, 8))
         left_frame.pack_propagate(False)
 
         left_head = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
-        left_head.pack(fill="x", padx=15, pady=(15, 10))
-        tk.Label(left_head, text="组合档案", font=("Microsoft YaHei UI", 19, "bold"), bg=rt.SIDEBAR_BG, fg=rt.SIDEBAR_TEXT).pack(side="left")
+        left_head.pack(fill="x", padx=10, pady=(10, 6))
+        tk.Label(left_head, text="组合档案", font=("Microsoft YaHei UI", 15, "bold"), bg=rt.SIDEBAR_BG, fg=rt.SIDEBAR_TEXT).pack(side="left")
 
         left_actions = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
-        left_actions.pack(fill="x", padx=15, pady=(0, 10))
-        self.prepare_official_btn = ttk.Button(left_actions, text="准备接入官方账号", command=self.prepare_official_login)
+        left_actions.pack(fill="x", padx=10, pady=(0, 6))
+        self.prepare_official_btn = ttk.Button(left_actions, text="接入官方", command=self.prepare_official_login)
         self.prepare_official_btn.pack(side="left", fill="x", expand=True)
-        ttk.Button(left_actions, text="保存当前官方账号", command=self.save_current_official_account).pack(side="left", fill="x", expand=True, padx=(10, 0))
-        self.restore_official_btn = ttk.Button(left_actions, text="恢复接入前状态", command=self.restore_official_login_prep)
-        self.restore_official_btn.pack(side="left", fill="x", expand=True, padx=(10, 0))
+        ttk.Button(left_actions, text="保存官方", command=self.save_current_official_account).pack(side="left", fill="x", expand=True, padx=(6, 0))
+        self.restore_official_btn = ttk.Button(left_actions, text="恢复状态", command=self.restore_official_login_prep)
+        self.restore_official_btn.pack(side="left", fill="x", expand=True, padx=(6, 0))
 
         left_actions_row2 = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
-        left_actions_row2.pack(fill="x", padx=15, pady=(0, 10))
+        left_actions_row2.pack(fill="x", padx=10, pady=(0, 6))
         ttk.Button(left_actions_row2, text="导入 CC", command=self.import_cc_switch_profiles).pack(side="left", fill="x", expand=True)
 
         list_frame = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
-        list_frame.pack(fill="both", expand=True, padx=15, pady=(0, 15))
+        list_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical")
         scrollbar.pack(side="right", fill="y")
         self.listbox = tk.Listbox(
             list_frame,
-            font=("Microsoft YaHei UI", 18),
+            font=("Microsoft YaHei UI", 14),
             bg=rt.SIDEBAR_FIELD,
             fg=rt.SIDEBAR_TEXT,
             selectbackground=rt.DARK_SELECT_BG,
@@ -252,27 +252,27 @@ class App:
         self.listbox.bind("<Delete>", lambda _event: self.delete_selected_profile())
 
         left_bottom = tk.Frame(left_frame, bg=rt.SIDEBAR_BG)
-        left_bottom.pack(fill="x", padx=15, pady=(0, 15))
-        ttk.Button(left_bottom, text="切换选中", command=self.switch_selected, style="Primary.TButton").pack(side="left", expand=True, fill="x", padx=(0, 5))
-        ttk.Button(left_bottom, text="新建", command=self.clear_form).pack(side="left", expand=True, fill="x", padx=(5, 5))
-        ttk.Button(left_bottom, text="删除", command=self.delete_selected_profile).pack(side="left", expand=True, fill="x", padx=(5, 0))
+        left_bottom.pack(fill="x", padx=10, pady=(0, 10))
+        ttk.Button(left_bottom, text="切换选中", command=self.switch_selected, style="Primary.TButton").pack(side="left", expand=True, fill="x", padx=(0, 4))
+        ttk.Button(left_bottom, text="新建", command=self.clear_form).pack(side="left", expand=True, fill="x", padx=(4, 4))
+        ttk.Button(left_bottom, text="删除", command=self.delete_selected_profile).pack(side="left", expand=True, fill="x", padx=(4, 0))
 
         right_frame = tk.Frame(main_wrap, bg=rt.DARK_BG)
         right_frame.pack(side="left", fill="both", expand=True)
 
         status_card = tk.Frame(right_frame, bg=rt.DARK_PANEL, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
-        status_card.pack(fill="x", pady=(0, 10))
+        status_card.pack(fill="x", pady=(0, 8))
 
         status_head = tk.Frame(status_card, bg=rt.DARK_PANEL)
-        status_head.pack(fill="x", padx=20, pady=(15, 8))
-        tk.Label(status_head, text="当前生效状态", font=("Microsoft YaHei UI", 17, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_ACCENT).pack(side="left")
+        status_head.pack(fill="x", padx=12, pady=(10, 5))
+        tk.Label(status_head, text="当前生效状态", font=("Microsoft YaHei UI", 14, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_ACCENT).pack(side="left")
         ttk.Button(status_head, text="刷新状态", command=lambda: self.refresh(select_active=False)).pack(side="right")
-        ttk.Button(status_head, text="会话修复", command=self.open_repair_window).pack(side="right", padx=(0, 10))
-        ttk.Button(status_head, text="高级搜索", command=self.open_search_window).pack(side="right", padx=(0, 10))
-        ttk.Button(status_head, text="从当前配置生成组合档案", command=self.create_profile_from_current_config).pack(side="right", padx=(0, 10))
+        ttk.Button(status_head, text="会话修复", command=self.open_repair_window).pack(side="right", padx=(0, 6))
+        ttk.Button(status_head, text="高级搜索", command=self.open_search_window).pack(side="right", padx=(0, 6))
+        ttk.Button(status_head, text="当前生成档案", command=self.create_profile_from_current_config).pack(side="right", padx=(0, 6))
 
         status_grid = tk.Frame(status_card, bg=rt.DARK_PANEL)
-        status_grid.pack(fill="x", padx=20, pady=(0, 12))
+        status_grid.pack(fill="x", padx=12, pady=(0, 8))
         cards = [
             ("当前模式", self.current_mode_var),
             ("当前官方账号", self.current_official_var),
@@ -282,92 +282,92 @@ class App:
         ]
         for index, (title, variable) in enumerate(cards):
             card = self.build_status_card(status_grid, title, variable)
-            card.grid(row=0, column=index, sticky="nsew", padx=(0 if index == 0 else 8, 0))
+            card.grid(row=0, column=index, sticky="nsew", padx=(0 if index == 0 else 6, 0))
             status_grid.columnconfigure(index, weight=1)
 
         status_hint = tk.Frame(status_card, bg=rt.DARK_PANEL)
-        status_hint.pack(fill="x", padx=20, pady=(0, 15))
-        tk.Label(status_hint, textvariable=self.session_health_var, bg=rt.DARK_PANEL, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 13)).pack(side="left")
+        status_hint.pack(fill="x", padx=12, pady=(0, 8))
+        tk.Label(status_hint, textvariable=self.session_health_var, bg=rt.DARK_PANEL, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 11)).pack(side="left")
 
         edit_card = tk.Frame(right_frame, bg=rt.DARK_PANEL, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
-        edit_card.pack(fill="x", pady=(0, 10))
+        edit_card.pack(fill="x", pady=(0, 8))
 
         edit_head = tk.Frame(edit_card, bg=rt.DARK_PANEL)
-        edit_head.pack(fill="x", padx=20, pady=(15, 8))
-        tk.Label(edit_head, text="组合档案编辑", font=("Microsoft YaHei UI", 17, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_TEXT).pack(side="left")
+        edit_head.pack(fill="x", padx=12, pady=(10, 5))
+        tk.Label(edit_head, text="组合档案编辑", font=("Microsoft YaHei UI", 14, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_TEXT).pack(side="left")
         tk.Label(
             edit_head,
             text="先选模式，再展开需要填写的字段。切换成功后始终建议完全退出并重启 Codex。",
             bg=rt.DARK_PANEL,
             fg=rt.DARK_MUTED,
-            font=("Microsoft YaHei UI", 13),
+            font=("Microsoft YaHei UI", 11),
         ).pack(side="right")
 
         form_wrap = tk.Frame(edit_card, bg=rt.DARK_PANEL)
-        form_wrap.pack(fill="x", padx=20, pady=(0, 12))
+        form_wrap.pack(fill="x", padx=12, pady=(0, 8))
         form_wrap.columnconfigure(1, weight=1)
 
-        tk.Label(form_wrap, text="档案名称", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=8)
-        ttk.Entry(form_wrap, textvariable=self.display_name_var, font=("Microsoft YaHei UI", 16)).grid(row=0, column=1, sticky="we", padx=(10, 0), pady=8)
+        tk.Label(form_wrap, text="档案名称", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=4)
+        ttk.Entry(form_wrap, textvariable=self.display_name_var, font=("Microsoft YaHei UI", 13)).grid(row=0, column=1, sticky="we", padx=(8, 0), pady=4)
 
-        tk.Label(form_wrap, text="切换模式", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=1, column=0, sticky="w", pady=8)
+        tk.Label(form_wrap, text="切换模式", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=1, column=0, sticky="w", pady=4)
         mode_combo = ttk.Combobox(
             form_wrap,
             textvariable=self.profile_mode_var,
             values=[rt.PROFILE_MODE_LABELS[key] for key in PROFILE_MODE_ORDER],
             state="readonly",
-            font=("Microsoft YaHei UI", 15),
+            font=("Microsoft YaHei UI", 12),
         )
-        mode_combo.grid(row=1, column=1, sticky="we", padx=(10, 0), pady=8)
+        mode_combo.grid(row=1, column=1, sticky="we", padx=(8, 0), pady=4)
         mode_combo.bind("<<ComboboxSelected>>", lambda _event: self.on_profile_mode_changed())
 
         self.official_frame = tk.Frame(form_wrap, bg=rt.DARK_PANEL)
         self.official_frame.grid(row=2, column=0, columnspan=2, sticky="we")
         self.official_frame.columnconfigure(1, weight=1)
-        tk.Label(self.official_frame, text="官方账号", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=8)
+        tk.Label(self.official_frame, text="官方账号", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=4)
         self.snapshot_combo = ttk.Combobox(
             self.official_frame,
             textvariable=self.official_snapshot_var,
             state="readonly",
-            font=("Microsoft YaHei UI", 15),
+            font=("Microsoft YaHei UI", 12),
         )
-        self.snapshot_combo.grid(row=0, column=1, sticky="we", padx=(10, 0), pady=8)
+        self.snapshot_combo.grid(row=0, column=1, sticky="we", padx=(8, 0), pady=4)
         self.snapshot_hint_label = tk.Label(
             self.official_frame,
             text="如果这里为空，先在 Codex 里登录官方，再点左侧“保存当前官方账号”。",
             bg=rt.DARK_PANEL,
             fg=rt.DARK_MUTED,
-            font=("Microsoft YaHei UI", 13),
+            font=("Microsoft YaHei UI", 11),
         )
-        self.snapshot_hint_label.grid(row=1, column=1, sticky="w", padx=(10, 0), pady=(0, 8))
+        self.snapshot_hint_label.grid(row=1, column=1, sticky="w", padx=(8, 0), pady=(0, 4))
 
         self.proxy_frame = tk.Frame(form_wrap, bg=rt.DARK_PANEL)
         self.proxy_frame.grid(row=3, column=0, columnspan=2, sticky="we")
         self.proxy_frame.columnconfigure(1, weight=1)
 
-        tk.Label(self.proxy_frame, text="线路名称", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=8)
-        ttk.Entry(self.proxy_frame, textvariable=self.provider_name_var, font=("Microsoft YaHei UI", 16)).grid(row=0, column=1, sticky="we", padx=(10, 0), pady=8)
+        tk.Label(self.proxy_frame, text="线路名称", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=0, column=0, sticky="w", pady=4)
+        ttk.Entry(self.proxy_frame, textvariable=self.provider_name_var, font=("Microsoft YaHei UI", 13)).grid(row=0, column=1, sticky="we", padx=(8, 0), pady=4)
 
-        tk.Label(self.proxy_frame, text="Base URL", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=1, column=0, sticky="w", pady=8)
-        ttk.Entry(self.proxy_frame, textvariable=self.provider_base_url_var, font=("Consolas", 16)).grid(row=1, column=1, sticky="we", padx=(10, 0), pady=8)
+        tk.Label(self.proxy_frame, text="Base URL", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=1, column=0, sticky="w", pady=4)
+        ttk.Entry(self.proxy_frame, textvariable=self.provider_base_url_var, font=("Consolas", 13)).grid(row=1, column=1, sticky="we", padx=(8, 0), pady=4)
 
-        tk.Label(self.proxy_frame, text="API Key", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=2, column=0, sticky="w", pady=8)
+        tk.Label(self.proxy_frame, text="API Key", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=2, column=0, sticky="w", pady=4)
         provider_key_row = tk.Frame(self.proxy_frame, bg=rt.DARK_PANEL)
-        provider_key_row.grid(row=2, column=1, sticky="we", padx=(10, 0), pady=8)
+        provider_key_row.grid(row=2, column=1, sticky="we", padx=(8, 0), pady=4)
         provider_key_row.columnconfigure(0, weight=1)
-        self.provider_api_key_entry = ttk.Entry(provider_key_row, textvariable=self.provider_api_key_var, font=("Consolas", 16), show="*")
+        self.provider_api_key_entry = ttk.Entry(provider_key_row, textvariable=self.provider_api_key_var, font=("Consolas", 13), show="*")
         self.provider_api_key_entry.grid(row=0, column=0, sticky="we")
         self.api_key_toggle_btn = ttk.Button(provider_key_row, text="显示", width=4, command=self.toggle_api_key_visibility, style="Icon.TButton")
-        self.api_key_toggle_btn.grid(row=0, column=1, sticky="e", padx=(8, 0))
+        self.api_key_toggle_btn.grid(row=0, column=1, sticky="e", padx=(6, 0))
 
-        tk.Label(self.proxy_frame, text="备注", font=("Microsoft YaHei UI", 15), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=3, column=0, sticky="w", pady=8)
-        ttk.Entry(self.proxy_frame, textvariable=self.notes_var, font=("Microsoft YaHei UI", 15)).grid(row=3, column=1, sticky="we", padx=(10, 0), pady=8)
+        tk.Label(self.proxy_frame, text="备注", font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).grid(row=3, column=0, sticky="w", pady=4)
+        ttk.Entry(self.proxy_frame, textvariable=self.notes_var, font=("Microsoft YaHei UI", 12)).grid(row=3, column=1, sticky="we", padx=(8, 0), pady=4)
 
         edit_actions = tk.Frame(edit_card, bg=rt.DARK_PANEL)
-        edit_actions.pack(fill="x", padx=20, pady=(0, 15))
+        edit_actions.pack(fill="x", padx=12, pady=(0, 10))
         ttk.Button(edit_actions, text="保存并切换", command=self.save_and_switch, style="Primary.TButton").pack(side="right")
-        ttk.Button(edit_actions, text="仅保存", command=self.save_profile).pack(side="right", padx=(0, 10))
-        tk.Label(edit_actions, text="切换写入失败时会同时回滚 auth.json 和 config.toml。", bg=rt.DARK_PANEL, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 13)).pack(side="left", pady=(5, 0))
+        ttk.Button(edit_actions, text="仅保存", command=self.save_profile).pack(side="right", padx=(0, 6))
+        tk.Label(edit_actions, text="切换写入失败时会同时回滚 auth.json 和 config.toml。", bg=rt.DARK_PANEL, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 11)).pack(side="left", pady=(3, 0))
 
         tools_notebook = ttk.Notebook(right_frame)
         tools_notebook.pack(fill="both", expand=True)
@@ -376,21 +376,21 @@ class App:
         tools_notebook.add(probe_tab, text="连通性测试")
 
         probe_head = tk.Frame(probe_tab, bg=rt.DARK_PANEL)
-        probe_head.pack(fill="x", padx=15, pady=(15, 5))
+        probe_head.pack(fill="x", padx=12, pady=(10, 4))
         self.fetch_models_btn = ttk.Button(probe_head, text="获取模型列表", command=self.start_fetch_models)
         self.fetch_models_btn.pack(side="left")
         self.health_check_btn = ttk.Button(probe_head, text="测试连接", command=self.start_health_check, style="Primary.TButton")
-        self.health_check_btn.pack(side="left", padx=(10, 0))
+        self.health_check_btn.pack(side="left", padx=(6, 0))
         self.copy_models_btn = ttk.Button(probe_head, text="复制结果", command=self.copy_model_results)
-        self.copy_models_btn.pack(side="left", padx=(10, 0))
+        self.copy_models_btn.pack(side="left", padx=(6, 0))
         self.clear_models_btn = ttk.Button(probe_head, text="清空", command=lambda: self.clear_model_results(cancel_running=True))
-        self.clear_models_btn.pack(side="left", padx=(10, 0))
-        tk.Label(probe_head, textvariable=self.model_check_status_var, font=("Microsoft YaHei UI", 15, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_ACCENT).pack(side="right")
+        self.clear_models_btn.pack(side="left", padx=(6, 0))
+        tk.Label(probe_head, textvariable=self.model_check_status_var, font=("Microsoft YaHei UI", 12, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_ACCENT).pack(side="right")
 
-        tk.Label(probe_tab, textvariable=self.model_check_summary_var, font=("Microsoft YaHei UI", 14), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).pack(anchor="w", padx=15, pady=(5, 5))
+        tk.Label(probe_tab, textvariable=self.model_check_summary_var, font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).pack(anchor="w", padx=12, pady=(3, 4))
         self.model_result_text = scrolledtext.ScrolledText(
             probe_tab,
-            font=("Microsoft YaHei UI", 15),
+            font=("Microsoft YaHei UI", 12),
             bg=rt.DARK_FIELD,
             fg=rt.DARK_TEXT,
             insertbackground=rt.DARK_TEXT,
@@ -398,30 +398,30 @@ class App:
             highlightthickness=1,
             highlightbackground=rt.DARK_BORDER,
         )
-        self.model_result_text.pack(fill="both", expand=True, padx=15, pady=(0, 15))
+        self.model_result_text.pack(fill="both", expand=True, padx=12, pady=(0, 10))
         self.set_model_result_text("选中一个中转相关档案后，点击“测试连接”。\n\n这个检测现在只是辅助工具，不再拦截切换。")
 
         search_tab = tk.Frame(tools_notebook, bg=rt.DARK_PANEL)
         tools_notebook.add(search_tab, text="快捷搜索")
         search_wrap = tk.Frame(search_tab, bg=rt.DARK_PANEL)
-        search_wrap.pack(fill="both", expand=True, padx=20, pady=20)
-        tk.Label(search_wrap, text="快速查找聊天记录", font=("Microsoft YaHei UI", 16, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_TEXT).pack(anchor="w", pady=(0, 15))
+        search_wrap.pack(fill="both", expand=True, padx=12, pady=12)
+        tk.Label(search_wrap, text="快速查找聊天记录", font=("Microsoft YaHei UI", 13, "bold"), bg=rt.DARK_PANEL, fg=rt.DARK_TEXT).pack(anchor="w", pady=(0, 8))
         search_row = tk.Frame(search_wrap, bg=rt.DARK_PANEL)
         search_row.pack(fill="x")
-        search_entry = ttk.Entry(search_row, textvariable=self.search_query_var, font=("Microsoft YaHei UI", 16))
+        search_entry = ttk.Entry(search_row, textvariable=self.search_query_var, font=("Microsoft YaHei UI", 13))
         search_entry.pack(side="left", fill="x", expand=True)
         search_entry.bind("<Return>", lambda _event: self.run_quick_search())
-        ttk.Button(search_row, text="搜索", command=self.run_quick_search, style="Primary.TButton").pack(side="left", padx=(10, 0))
-        tk.Label(search_wrap, textvariable=self.search_tip_var, font=("Microsoft YaHei UI", 14), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).pack(anchor="w", pady=(15, 0))
+        ttk.Button(search_row, text="搜索", command=self.run_quick_search, style="Primary.TButton").pack(side="left", padx=(6, 0))
+        tk.Label(search_wrap, textvariable=self.search_tip_var, font=("Microsoft YaHei UI", 12), bg=rt.DARK_PANEL, fg=rt.DARK_MUTED).pack(anchor="w", pady=(8, 0))
 
-        status_bar = tk.Label(self.root, textvariable=self.status_var, anchor="w", bg=rt.DARK_PANEL_ALT, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 13), padx=15, pady=6)
+        status_bar = tk.Label(self.root, textvariable=self.status_var, anchor="w", bg=rt.DARK_PANEL_ALT, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 11), padx=10, pady=4)
         status_bar.pack(side="bottom", fill="x")
         self.update_api_key_visibility()
 
     def build_status_card(self, master: tk.Misc, title: str, variable: tk.StringVar) -> tk.Frame:
         card = tk.Frame(master, bg=rt.DARK_PANEL_ALT, highlightbackground=rt.DARK_BORDER, highlightthickness=1)
-        tk.Label(card, text=title, bg=rt.DARK_PANEL_ALT, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 13)).pack(anchor="w", padx=12, pady=(8, 2))
-        tk.Label(card, textvariable=variable, bg=rt.DARK_PANEL_ALT, fg=rt.DARK_TEXT, font=("Microsoft YaHei UI", 15, "bold"), justify="left", wraplength=220).pack(anchor="w", padx=12, pady=(0, 10))
+        tk.Label(card, text=title, bg=rt.DARK_PANEL_ALT, fg=rt.DARK_MUTED, font=("Microsoft YaHei UI", 11)).pack(anchor="w", padx=8, pady=(5, 1))
+        tk.Label(card, textvariable=variable, bg=rt.DARK_PANEL_ALT, fg=rt.DARK_TEXT, font=("Microsoft YaHei UI", 12, "bold"), justify="left", wraplength=180).pack(anchor="w", padx=8, pady=(0, 6))
         return card
 
     def mode_key_from_label(self, label: str) -> str:
