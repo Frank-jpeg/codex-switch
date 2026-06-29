@@ -335,7 +335,7 @@ def write_text(path: Path, content: str) -> None:
 
 
 def write_json(path: Path, data: dict) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_text(path, json.dumps(data, ensure_ascii=False, indent=2))
 
 
 def normalize_text(text: object) -> str:
@@ -995,7 +995,16 @@ def save_app_data(app_data: dict) -> None:
 def load_app_data() -> dict:
     if not PROFILES_PATH.exists():
         return default_app_data()
-    raw = json.loads(read_text(PROFILES_PATH))
+    try:
+        raw = json.loads(read_text(PROFILES_PATH))
+    except json.JSONDecodeError:
+        backup_path = PROFILES_PATH.with_name(
+            f"{PROFILES_PATH.stem}.invalid-{datetime.now().strftime('%Y%m%d-%H%M%S')}{PROFILES_PATH.suffix}"
+        )
+        shutil.move(PROFILES_PATH, backup_path)
+        defaults = default_app_data()
+        save_app_data(defaults)
+        return defaults
     sanitized = sanitize_app_data(raw)
     if raw != sanitized:
         save_app_data(sanitized)
@@ -1288,6 +1297,53 @@ def remove_key_from_all_provider_sections(config_text: str, key: str) -> str:
 
 def config_provider_family(provider_id: str) -> str:
     return "custom" if provider_id.strip() == "custom" else "official"
+
+
+def build_default_codex_config() -> str:
+    config_text = set_root_toml_string_value("", "model_provider", "openai")
+    return set_provider_section(
+        config_text,
+        "openai",
+        {
+            "name": "OpenAI Official",
+            "wire_api": "responses",
+            "requires_openai_auth": True,
+        },
+        remove_keys=["base_url", "experimental_bearer_token"],
+    )
+
+
+def normalize_initial_codex_config(config_text: str) -> tuple[str, bool]:
+    content = str(config_text or "")
+    if not content.strip():
+        return build_default_codex_config(), True
+
+    changed = False
+    provider_id = extract_toml_string_value(content, "model_provider").strip()
+    if not provider_id:
+        content = set_root_toml_string_value(content, "model_provider", "openai")
+        provider_id = "openai"
+        changed = True
+
+    if extract_provider_block(content, provider_id).strip():
+        return content, changed
+
+    has_provider_sections = bool(re.search(r"(?m)^\[model_providers\.[^\]]+\]\s*$", content))
+    if provider_id == "openai" or not has_provider_sections:
+        content = set_root_toml_string_value(content, "model_provider", "openai")
+        content = set_provider_section(
+            content,
+            "openai",
+            {
+                "name": "OpenAI Official",
+                "wire_api": "responses",
+                "requires_openai_auth": True,
+            },
+            remove_keys=["base_url", "experimental_bearer_token"],
+        )
+        return content, True
+
+    return content, changed
 
 
 def infer_live_mode(auth_text: str, config_text: str) -> str:
@@ -1613,6 +1669,32 @@ def atomic_write_text(path: Path, content: str) -> None:
                 pass
 
 
+def ensure_initial_codex_files() -> tuple[bool, bool]:
+    CODEX_DIR.mkdir(parents=True, exist_ok=True)
+
+    config_changed = False
+    if CONFIG_PATH.exists():
+        normalized_config, changed = normalize_initial_codex_config(read_text(CONFIG_PATH))
+        config_changed = changed
+    else:
+        normalized_config = build_default_codex_config()
+        config_changed = True
+    if config_changed:
+        atomic_write_text(CONFIG_PATH, normalized_config.rstrip() + "\n")
+
+    auth_changed = False
+    if AUTH_PATH.exists():
+        auth_text = read_text(AUTH_PATH)
+        if not auth_text.strip():
+            atomic_write_text(AUTH_PATH, build_auth_text_for_official_login())
+            auth_changed = True
+    else:
+        atomic_write_text(AUTH_PATH, build_auth_text_for_official_login())
+        auth_changed = True
+
+    return config_changed, auth_changed
+
+
 def resolve_user_path(raw: str) -> Path:
     text = raw.strip()
     if not text:
@@ -1850,6 +1932,7 @@ def ensure_official_only_profile_for_snapshot(app_data: dict, snapshot_meta: dic
 
 
 def live_state_from_files(app_data: dict) -> dict:
+    ensure_initial_codex_files()
     auth_text = read_text(AUTH_PATH)
     config_text = read_text(CONFIG_PATH)
     provider_info = extract_current_provider_info(config_text)
@@ -2136,6 +2219,7 @@ def load_cc_switch_common_codex_config() -> str:
         ).fetchone()
     if row and isinstance(row[0], str) and row[0].strip():
         return row[0]
+    ensure_initial_codex_files()
     return read_text(CONFIG_PATH)
 
 
@@ -4419,8 +4503,7 @@ class App:
 
 
 def main() -> None:
-    assert_file_exists(CONFIG_PATH)
-    assert_file_exists(AUTH_PATH)
+    ensure_initial_codex_files()
     root = tk.Tk()
     configure_tk_display(root)
     from codex_switcher_v2_app import App as SwitcherApp

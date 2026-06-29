@@ -74,6 +74,14 @@ git push origin vX.Y.Z
 
 启动时不应自动跑 `analyze_session_health()`。会话检查只能由用户点击“会话修复”触发。
 
+### 新装 Codex 打不开
+
+当前版本启动时会自动补最小 `~/.codex/config.toml` 和 `~/.codex/auth.json`。如果用户反馈 fresh install 仍打不开，优先检查：
+
+- `~/.codex/` 是否可写。
+- `provider_profiles.json` 是否损坏；损坏时程序会自动备份成 `provider_profiles.invalid-时间戳.json`。
+- 是否有安全软件或权限限制阻止写入用户目录。
+
 ### CC Switch 导出后没显示
 
 先重启 CC Switch。导出只写数据库，不控制 CC Switch 前端刷新。

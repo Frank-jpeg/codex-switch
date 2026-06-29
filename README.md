@@ -22,6 +22,7 @@
 - 从 CC Switch 导入 Codex 线路
 - 将本工具里的纯中转档案导出到 CC Switch
 - 记住主窗口上次关闭时的位置和大小
+- 新装 Codex 时自动补齐最小 `config.toml` / `auth.json`，避免首启打不开
 
 更多实现和运维细节见：
 
@@ -38,6 +39,7 @@ python3 CODEX切换器.py
 
 - `python3 xxx.py` 类似 Windows 里双击开发版脚本启动
 - `.app` 类似 Windows 的打包版程序
+- 首次自动生成 `~/.codex/config.toml` / `auth.json`，类似很多 Windows 软件第一次启动先写默认 `ini/json`
 
 ## 本地打包
 

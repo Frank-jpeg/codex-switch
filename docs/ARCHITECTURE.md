@@ -21,6 +21,11 @@
 - `combo_profiles`：组合档案，支持纯官方、官方+中转、纯中转。
 - `official_onboarding`：接入官方账号流程的临时状态。
 
+如果检测到新装 Codex 还没生成 `config.toml` / `auth.json`，启动时会先自动补最小默认文件：
+
+- `config.toml` 默认写 `model_provider = "openai"` 和 `[model_providers.openai]`
+- `auth.json` 默认写空对象 `{}`，让官方登录流程可以直接开始
+
 ## 窗口布局
 
 主窗口默认约 `1120x700`。首次启动居中偏上；之后关闭窗口时保存 geometry，下次打开恢复。若外接屏变化导致坐标超出当前屏幕，会自动夹回屏幕内。
